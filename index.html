@@ -1,0 +1,993 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"/>
+<title>Docol Wellness — Coleta de Insights</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='6' fill='%23003B73'/><text x='16' y='22' font-size='18' text-anchor='middle' fill='white'>✦</text></svg>"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Caveat:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&display=swap" rel="stylesheet"/>
+<style>
+:root {
+  --bg: #F7F8FA;
+  --card: #FFFFFF;
+  --border: #E2E8F0;
+  --text: #0F172A;
+  --text2: #475569;
+  --text3: #94A3B8;
+  --blue: #003B73;
+  --blue2: #0066CC;
+  --aura: #E25822;
+  --reset: #0EA5A0;
+  --bliss: #4A6CF7;
+  --nuvia: #9333EA;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body { font-family: 'DM Sans', system-ui, sans-serif; background: var(--bg); color: var(--text); -webkit-font-smoothing: antialiased; }
+.fd { font-family: 'Fraunces', Georgia, serif; }
+.caveat { font-family: 'Caveat', cursive; }
+
+/* Animations */
+@keyframes fadeUp { from { opacity:0; transform:translateY(14px) } to { opacity:1; transform:translateY(0) } }
+@keyframes pop { from { opacity:0; transform:scale(.85) rotate(-2deg) } to { opacity:1; transform:scale(1) rotate(0) } }
+@keyframes slideIn { from { opacity:0; transform:translateX(-10px) } to { opacity:1; transform:translateX(0) } }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+@keyframes spin { to { transform: rotate(360deg) } }
+@keyframes glow { 0%,100%{box-shadow:0 0 8px rgba(0,102,204,.2)} 50%{box-shadow:0 0 20px rgba(0,102,204,.4)} }
+.afu { animation: fadeUp .4s ease both; }
+.apop { animation: pop .3s cubic-bezier(.34,1.56,.64,1) both; }
+.asli { animation: slideIn .3s ease both; }
+
+/* Scrollbar */
+::-webkit-scrollbar { width:5px; height:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:#CBD5E1; border-radius:3px; }
+
+/* Buttons */
+button { font-family: inherit; }
+.btn { border:none; cursor:pointer; transition: all .15s ease; }
+.btn:hover { filter:brightness(1.05); transform:translateY(-1px); }
+.btn:active { transform:translateY(0); }
+.btn:disabled { opacity:.5; cursor:not-allowed; transform:none; filter:none; }
+
+/* Note card */
+.note { transition: transform .15s ease, box-shadow .15s ease; }
+.note:hover { transform: translateY(-3px) rotate(0deg) !important; box-shadow: 0 8px 25px rgba(0,0,0,.12) !important; z-index:10; }
+
+/* Chip */
+.chip { transition: all .12s ease; cursor:pointer; user-select:none; }
+.chip:hover { transform: scale(1.04); }
+
+/* Tab */
+.ptab { transition: all .2s ease; cursor:pointer; position:relative; }
+.ptab::after { content:''; position:absolute; bottom:-1px; left:0; right:0; height:3px; border-radius:3px 3px 0 0; background:transparent; transition: background .2s ease; }
+.ptab.active::after { background: var(--active-color); }
+
+/* Live indicator */
+.live-dot { width:8px; height:8px; border-radius:50%; background:#16A34A; animation: pulse 2s infinite; }
+
+/* Toast */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(80px); 
+  background:#0F172A; color:#fff; padding:12px 24px; border-radius:12px; font-size:14px; font-weight:600;
+  z-index:200; transition: transform .3s cubic-bezier(.34,1.56,.64,1); pointer-events:none; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* Modal */
+.modal-bg { position:fixed; inset:0; background:rgba(0,0,0,.4); display:flex; align-items:center; 
+  justify-content:center; z-index:100; backdrop-filter:blur(3px); }
+
+/* Responsive */
+@media(max-width:640px) {
+  .hide-mobile { display:none !important; }
+  .grid-notes { grid-template-columns: 1fr !important; }
+  .grid-2c { grid-template-columns: 1fr !important; }
+}
+@media(min-width:641px) {
+  .hide-desktop { display:none !important; }
+}
+
+/* Facilitator large screen */
+.fac-grid { display:grid; grid-template-columns: repeat(auto-fill, minmax(260px,1fr)); gap:14px; }
+@media(min-width:1200px) {
+  .fac-grid { grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap:16px; }
+}
+
+textarea, input { font-family: inherit; }
+textarea:focus, input:focus { outline:none; border-color: var(--blue2) !important; }
+textarea { resize: none; }
+</style>
+</head>
+<body>
+
+<!-- ═══ LOGIN SCREEN — Pure static HTML, JS never rebuilds this ═══ -->
+<div id="welcome" style="min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;
+  background:linear-gradient(135deg,#F7F8FA 0%,#EEF2FF 50%,#FEF3C7 100%)">
+  <div class="afu" style="width:100%;max-width:420px;text-align:center">
+    <div style="margin-bottom:28px">
+      <div style="width:68px;height:68px;border-radius:16px;margin:0 auto 14px;
+        background:linear-gradient(135deg,#003B73,#0066CC);display:flex;align-items:center;justify-content:center;
+        box-shadow:0 10px 35px rgba(0,59,115,.25)">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+          <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+          <path d="M9 2h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/>
+        </svg>
+      </div>
+      <h1 class="fd" style="font-size:28px;font-weight:700;color:#0F172A;margin-bottom:4px">Docol Wellness</h1>
+      <p style="font-size:15px;color:#64748B">Quadro de Insights — Portfólio BE</p>
+      <p style="font-size:12px;color:#94A3B8;margin-top:4px">ExpoRevestir 2026 • Casa Docol • Kurotel Spa</p>
+    </div>
+
+    <div style="background:#fff;border-radius:20px;padding:24px;box-shadow:0 4px 24px rgba(0,0,0,.06);
+      border:1px solid #E2E8F0;text-align:left">
+      <label style="font-size:12px;font-weight:600;color:#94A3B8;letter-spacing:.5px;text-transform:uppercase">
+        Seu nome
+      </label>
+      <input id="inp-name" type="text" placeholder="Digite seu nome" autocomplete="off"
+        style="width:100%;padding:12px 16px;border-radius:12px;font-size:15px;
+        background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;margin-top:6px;margin-bottom:16px"/>
+
+      <label style="font-size:12px;font-weight:600;color:#94A3B8;letter-spacing:.5px;text-transform:uppercase">
+        Equipe
+      </label>
+      <div style="display:flex;gap:10px;margin-top:6px;margin-bottom:20px">
+        <button class="btn team-btn" data-team="marketing" style="flex:1;padding:12px;border-radius:12px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">
+          Marketing / Comercial
+        </button>
+        <button class="btn team-btn" data-team="engenharia" style="flex:1;padding:12px;border-radius:12px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">
+          Engenharia / P&D
+        </button>
+      </div>
+
+      <button id="btn-enter" class="btn" disabled style="width:100%;padding:14px;border-radius:12px;font-size:15px;
+        font-weight:600;background:#E2E8F0;color:#94A3B8;display:flex;align-items:center;justify-content:center;gap:8px">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+          <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><path d="M10 17l5-5-5-5"/><path d="M15 12H3"/>
+        </svg>
+        Entrar na Sessão
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ APP — JS renders here only AFTER login ═══ -->
+<div id="app" style="display:none"></div>
+<div id="toast" class="toast"></div>
+
+<script>
+/* ══════════════════════════════════════════════════════════
+   DOCOL WELLNESS — COLETA DE INSIGHTS
+   Standalone app · Real-time sync via Python server
+   ══════════════════════════════════════════════════════════ */
+
+const API = window.location.origin;
+const IS_FACILITATOR = window.location.hash.includes('facilitador');
+
+const PRODUCTS = [
+  { id:"aura", name:"DocolAura", sub:"Sauna Infravermelha",
+    desc:"Cabine de sauna com tecnologia de infravermelho para terapia térmica profunda.",
+    color:"#E25822", light:"#FFF4EF", emoji:"🔥" },
+  { id:"reset", name:"DocolReset", sub:"Banheira de Imersão Gelada",
+    desc:"Banheira de crioterapia com controle de temperatura para recuperação.",
+    color:"#0EA5A0", light:"#EEFBFA", emoji:"❄️" },
+  { id:"bliss", name:"DocolBliss", sub:"Banheira de Microbolhas",
+    desc:"Banheira com tecnologia de microbolhas para hidromassagem e cuidado com a pele.",
+    color:"#4A6CF7", light:"#EEF1FD", emoji:"💧" },
+  { id:"nuvia", name:"DocolNuvia", sub:"Ducha de Espuma",
+    desc:"Sistema inovador de ducha com geração de espuma para experiência sensorial única.",
+    color:"#9333EA", light:"#F5EFFE", emoji:"☁️" }
+];
+
+const CATEGORIES = [
+  { id:"forte", label:"Ponto Forte", color:"#16A34A", bg:"#F0FDF4", icon:"+" },
+  { id:"melhoria", label:"Melhoria", color:"#D97706", bg:"#FFFBEB", icon:"△" },
+  { id:"insight", label:"Insight / Ideia", color:"#2563EB", bg:"#EFF6FF", icon:"💡" },
+  { id:"geral", label:"Observação Geral", color:"#6B7280", bg:"#F9FAFB", icon:"●" }
+];
+
+const NOTE_COLORS = [
+  { bg:"#FEF9C3", border:"#FDE047" },
+  { bg:"#DBEAFE", border:"#93C5FD" },
+  { bg:"#FCE7F3", border:"#F9A8D4" },
+  { bg:"#D1FAE5", border:"#6EE7B7" },
+  { bg:"#FED7AA", border:"#FDBA74" },
+  { bg:"#E9D5FF", border:"#C084FC" },
+  { bg:"#FEE2E2", border:"#FCA5A5" },
+  { bg:"#CCFBF1", border:"#5EEAD4" }
+];
+
+const ROUND_TIME = 20 * 60;
+
+/* ─── State ─── */
+let state = {
+  screen: "welcome",
+  name: "",
+  team: "",
+  activeProduct: 0,
+  data: { participants:[], notes:{} },
+  showModal: false,
+  showAIPrompt: false,
+  aiPromptText: "",
+  timerSeconds: ROUND_TIME,
+  timerRunning: false,
+  totalCards: 0
+};
+let timerInterval = null;
+let pollInterval = null;
+
+/* ─── API helpers ─── */
+async function apiGet(path) {
+  try {
+    const r = await fetch(API + path);
+    return await r.json();
+  } catch(e) { console.error("API GET error:", e); return null; }
+}
+
+async function apiPost(path, body) {
+  try {
+    const r = await fetch(API + path, {
+      method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify(body)
+    });
+    return await r.json();
+  } catch(e) { console.error("API POST error:", e); return null; }
+}
+
+async function apiDelete(path) {
+  try {
+    await fetch(API + path, { method:"DELETE" });
+  } catch(e) { console.error("API DELETE error:", e); }
+}
+
+/* ─── Data sync ─── */
+async function refreshData() {
+  const d = await apiGet("/api/data");
+  if (d) {
+    const newTotal = Object.values(d.notes || {}).reduce((s,arr) => s + arr.length, 0);
+    if (newTotal > state.totalCards && state.totalCards > 0) {
+      showToast(`+${newTotal - state.totalCards} novo${newTotal - state.totalCards > 1 ? 's' : ''} card${newTotal - state.totalCards > 1 ? 's' : ''}`);
+    }
+    state.data = d;
+    state.totalCards = newTotal;
+    // If modal or AI prompt is open, only update counters — don't rebuild DOM
+    if (state.showModal || state.showAIPrompt) {
+      updateLiveCounts();
+    } else {
+      render();
+    }
+  }
+}
+
+function updateLiveCounts() {
+  const badges = document.querySelectorAll(".ptab");
+  badges.forEach(tab => {
+    const idx = parseInt(tab.dataset.pidx);
+    if (isNaN(idx)) return;
+    const cnt = getProductNotes(PRODUCTS[idx].id).length;
+    const span = tab.querySelector("span");
+    if (span) span.textContent = cnt;
+  });
+}
+
+function startPolling() {
+  if (pollInterval) clearInterval(pollInterval);
+  refreshData();
+  pollInterval = setInterval(refreshData, IS_FACILITATOR ? 2000 : 4000);
+}
+
+/* ─── Timer ─── */
+function startTimer() {
+  state.timerRunning = true;
+  timerInterval = setInterval(() => {
+    if (state.timerSeconds > 0) {
+      state.timerSeconds--;
+      updateTimerDisplay();
+    } else {
+      clearInterval(timerInterval);
+      state.timerRunning = false;
+      updateTimerDisplay();
+    }
+  }, 1000);
+  render();
+}
+function pauseTimer() { clearInterval(timerInterval); state.timerRunning = false; render(); }
+function resetTimer() { clearInterval(timerInterval); state.timerRunning = false; state.timerSeconds = ROUND_TIME; render(); }
+
+function updateTimerDisplay() {
+  // Update only the timer text and SVG ring without full re-render
+  const timerText = document.getElementById("timer-text");
+  if (timerText) {
+    timerText.textContent = fmtTime(state.timerSeconds);
+    timerText.style.color = state.timerSeconds < 120 ? '#EF4444' : (IS_FACILITATOR ? 'var(--text)' : '#F1F5F9');
+  }
+  const ring = document.getElementById("timer-ring");
+  if (ring) {
+    const pct = (state.timerSeconds / ROUND_TIME) * 100;
+    const r = parseFloat(ring.getAttribute("r"));
+    const circ = 2 * Math.PI * r;
+    ring.setAttribute("stroke-dashoffset", circ - (pct/100) * circ);
+  }
+}
+
+/* ─── Toast ─── */
+function showToast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg;
+  el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 2500);
+}
+
+/* ─── Helpers ─── */
+function esc(s) { const d = document.createElement("div"); d.textContent = s; return d.innerHTML; }
+function fmtTime(s) { return `${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`; }
+function getProduct() { return PRODUCTS[state.activeProduct]; }
+function getProductNotes(pid) { return state.data.notes?.[pid] || []; }
+
+/* ─── Copy for AI ─── */
+function buildPromptForProduct(productIdx) {
+  const p = PRODUCTS[productIdx];
+  const notes = getProductNotes(p.id);
+  if (!notes.length) return null;
+
+  const noteTexts = notes.map((n,i) => {
+    const cat = CATEGORIES.find(c=>c.id===n.category);
+    return `[${i+1}] (${cat?.label||"Geral"}) "${n.text}" — ${n.author} (${n.team==="marketing"?"MKT":"ENG"})`;
+  }).join("\n");
+
+  return `Você é um analista sênior de insights de produto da Docol. Analise os post-its coletados na sessão de insights sobre o produto "${p.name}" (${p.sub} — ${p.desc}).
+
+CARDS COLETADOS (${notes.length} cards):
+${noteTexts}
+
+Por favor, gere uma análise completa com:
+
+1. **Resumo Executivo** — Parágrafo de 3-5 frases consolidando todas as percepções.
+
+2. **Conclusões por Categoria:**
+   - **Pontos Fortes** — Síntese de todos os cards positivos. O que o produto faz bem?
+   - **Melhorias** — Síntese dos ajustes necessários, priorizados por impacto.
+   - **Insights/Ideias** — Oportunidades e direções de inovação identificadas.
+   - **Observações Gerais** — Percepções transversais e contextos.
+
+3. **Grupos Temáticos** — Agrupe cards com ideias similares, indicando quais cards pertencem a cada grupo.
+
+4. **Destaques:**
+   - Consenso positivo (o que mais foi elogiado)
+   - Ponto crítico (principal atenção)
+   - Ideia mais promissora`;
+}
+
+function copyForAI(productIdx) {
+  const prompt = buildPromptForProduct(productIdx);
+  if (!prompt) { showToast("Nenhum card para analisar"); return; }
+  state.aiPromptText = prompt;
+  state.showAIPrompt = true;
+  render();
+}
+
+function copyAllForAI() {
+  let fullPrompt = `Você é um analista sênior de insights de produto da Docol. Analise os post-its coletados na sessão de insights do portfólio BE Wellness (ExpoRevestir 2026).\n\n`;
+  let hasAny = false;
+
+  PRODUCTS.forEach(p => {
+    const notes = getProductNotes(p.id);
+    if (!notes.length) return;
+    hasAny = true;
+    fullPrompt += `\n═══ ${p.name} (${p.sub}) ═══\n`;
+    notes.forEach((n,i) => {
+      const cat = CATEGORIES.find(c=>c.id===n.category);
+      fullPrompt += `[${i+1}] (${cat?.label||"Geral"}) "${n.text}" — ${n.author}\n`;
+    });
+  });
+
+  if (!hasAny) { showToast("Nenhum card para analisar"); return; }
+
+  fullPrompt += `\nPor favor, para CADA produto, gere:\n1. Resumo Executivo\n2. Conclusões por categoria (Pontos Fortes, Melhorias, Insights, Observações)\n3. Grupos temáticos\n4. Destaques\n\nE ao final, uma COMPARAÇÃO CRUZADA entre os 4 produtos.`;
+
+  state.aiPromptText = fullPrompt;
+  state.showAIPrompt = true;
+  render();
+}
+
+function tryClipboardCopy(text) {
+  // Try multiple methods
+  // Method 1: Clipboard API (works on HTTPS/localhost)
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(() => showToast("✓ Copiado!")).catch(() => fallbackCopy(text));
+    return;
+  }
+  fallbackCopy(text);
+}
+
+function fallbackCopy(text) {
+  // Method 2: execCommand fallback
+  const ta = document.createElement("textarea");
+  ta.value = text;
+  ta.style.cssText = "position:fixed;top:0;left:0;opacity:0";
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
+  try {
+    document.execCommand("copy");
+    showToast("✓ Copiado!");
+  } catch {
+    showToast("Selecione o texto e copie manualmente (Ctrl+C)");
+  }
+  document.body.removeChild(ta);
+}
+
+/* ─── Export JSON ─── */
+function exportJSON() {
+  const json = JSON.stringify({ exportedAt: new Date().toISOString(), ...state.data }, null, 2);
+  const blob = new Blob([json], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = `docol_wellness_${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+  showToast("✓ JSON exportado");
+}
+
+/* ══════════════════════════════════════════════════
+   RENDER ENGINE
+   ══════════════════════════════════════════════════ */
+
+function render() {
+  const app = document.getElementById("app");
+  
+  if (IS_FACILITATOR) {
+    app.innerHTML = renderFacilitator();
+  } else {
+    app.innerHTML = renderParticipant();
+  }
+  
+  bindMainEvents();
+}
+
+/* ─── PARTICIPANT SCREEN ─── */
+function renderParticipant() {
+  const p = getProduct();
+  const notes = getProductNotes(p.id);
+  const myNotes = notes.filter(n => n.author === state.name);
+  const min = Math.floor(state.timerSeconds/60), sec = state.timerSeconds%60;
+
+  return `
+  <div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg)">
+    <!-- Header -->
+    <div style="background:#fff;border-bottom:1px solid var(--border);padding:10px 16px;
+      display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40">
+      <div>
+        <h1 class="fd" style="font-size:16px;font-weight:700;color:var(--text);line-height:1.2">Wellness Insights</h1>
+        <p style="font-size:11px;color:var(--text3)">${esc(state.name)} • ${state.team==="marketing"?"MKT":"ENG"}</p>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px">
+        <div class="live-dot"></div>
+        <span style="font-size:11px;color:var(--text3)">${Object.values(state.data.notes||{}).reduce((s,a)=>s+a.length,0)} cards</span>
+      </div>
+    </div>
+
+    <!-- Product tabs -->
+    <div style="background:#fff;border-bottom:1px solid var(--border);display:flex;overflow-x:auto;padding:0 8px" class="sh">
+      ${PRODUCTS.map((pr,i) => {
+        const cnt = getProductNotes(pr.id).length;
+        return `<button class="ptab${i===state.activeProduct?' active':''}" data-pidx="${i}"
+          style="padding:10px 14px;font-size:13px;font-weight:600;white-space:nowrap;background:none;border:none;
+          color:${i===state.activeProduct?pr.color:'#94A3B8'};display:flex;align-items:center;gap:5px;
+          --active-color:${pr.color}">
+          ${pr.emoji} ${pr.name}
+          <span style="background:${i===state.activeProduct?pr.color+'15':'#F1F5F9'};color:${i===state.activeProduct?pr.color:'#94A3B8'};
+            padding:1px 7px;border-radius:8px;font-size:11px;font-weight:700">${cnt}</span>
+        </button>`;
+      }).join("")}
+    </div>
+
+    <!-- Content -->
+    <div style="flex:1;padding:16px;overflow-y:auto">
+      <!-- Product info -->
+      <div class="afu" style="background:${p.light};border-radius:14px;padding:14px 16px;margin-bottom:14px;
+        border:1px solid ${p.color}20">
+        <p style="font-size:13px;color:${p.color};font-weight:600">${p.emoji} ${p.name} — ${p.sub}</p>
+        <p style="font-size:12px;color:var(--text2);margin-top:2px">${p.desc}</p>
+      </div>
+
+      <!-- My notes -->
+      ${myNotes.length > 0 ? `
+        <p style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">
+          Meus cards (${myNotes.length})
+        </p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+          ${myNotes.map(n => renderNote(n, true)).join("")}
+        </div>
+      ` : ''}
+
+      <!-- All notes -->
+      ${notes.length > 0 ? `
+        <p style="font-size:12px;font-weight:600;color:var(--text3);margin-bottom:8px;text-transform:uppercase;letter-spacing:.5px">
+          Todos os cards (${notes.length})
+        </p>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:80px">
+          ${notes.map(n => renderNote(n, false)).join("")}
+        </div>
+      ` : `
+        <div style="text-align:center;padding:40px 20px">
+          <p class="caveat" style="font-size:24px;color:#CBD5E1">Nenhum card ainda...</p>
+          <p style="font-size:13px;color:var(--text3);margin-top:4px">Toque no botão abaixo para adicionar</p>
+        </div>
+      `}
+    </div>
+
+    <!-- FAB -->
+    <button id="btn-add" class="btn" style="position:fixed;bottom:20px;right:20px;width:60px;height:60px;
+      border-radius:50%;background:${p.color};color:#fff;display:flex;align-items:center;justify-content:center;
+      box-shadow:0 6px 24px ${p.color}50;z-index:30;font-size:28px">
+      +
+    </button>
+
+    ${state.showModal ? renderAddModal() : ''}
+  </div>`;
+}
+
+/* ─── FACILITATOR SCREEN ─── */
+function renderFacilitator() {
+  const p = getProduct();
+  const notes = getProductNotes(p.id);
+  const totalNotes = Object.values(state.data.notes||{}).reduce((s,a)=>s+a.length,0);
+  const pct = (state.timerSeconds / ROUND_TIME) * 100;
+  const r = 30, circ = 2 * Math.PI * r, off = circ - (pct/100) * circ;
+
+  return `
+  <div style="min-height:100vh;display:flex;flex-direction:column;background:var(--bg)">
+    <!-- Top bar -->
+    <div style="background:#fff;border-bottom:1px solid var(--border);padding:10px 24px;
+      display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+      position:sticky;top:0;z-index:40">
+      <div style="display:flex;align-items:center;gap:14px">
+        <div style="width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#003B73,#0066CC);
+          display:flex;align-items:center;justify-content:center">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <path d="M9 2h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/>
+          </svg>
+        </div>
+        <div>
+          <h1 class="fd" style="font-size:18px;font-weight:700;color:var(--text);line-height:1.2">
+            Docol Wellness — Facilitador
+          </h1>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:2px">
+            <div class="live-dot"></div>
+            <span style="font-size:12px;color:var(--text3)">
+              ${state.data.participants?.length||0} participantes • ${totalNotes} cards
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timer -->
+      <div style="display:flex;align-items:center;gap:8px">
+        <div style="position:relative;width:68px;height:68px">
+          <svg width="68" height="68" style="transform:rotate(-90deg)">
+            <circle cx="34" cy="34" r="${r}" fill="none" stroke="#E2E8F0" stroke-width="4"/>
+            <circle id="timer-ring" cx="34" cy="34" r="${r}" fill="none" stroke="${p.color}" stroke-width="4"
+              stroke-dasharray="${circ}" stroke-dashoffset="${off}" stroke-linecap="round"
+              style="transition:stroke-dashoffset .5s ease"/>
+          </svg>
+          <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center">
+            <span id="timer-text" style="font-size:14px;font-weight:700;color:${state.timerSeconds<120?'#EF4444':'var(--text)'};
+              font-variant-numeric:tabular-nums">${fmtTime(state.timerSeconds)}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:4px">
+          <button id="btn-timer-toggle" class="btn" style="width:32px;height:32px;border-radius:50%;
+            background:${p.color};display:flex;align-items:center;justify-content:center">
+            ${state.timerRunning ? 
+              '<svg width="12" height="12" viewBox="0 0 24 24" fill="white"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>' :
+              '<svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M6 3l15 9-15 9z"/></svg>'}
+          </button>
+          <button id="btn-timer-reset" class="btn" style="width:32px;height:32px;border-radius:50%;
+            background:#F1F5F9;border:1px solid #E2E8F0;display:flex;align-items:center;justify-content:center">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round">
+              <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div style="display:flex;align-items:center;gap:6px">
+        <button id="btn-copy-ai" class="btn" style="padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;
+          background:linear-gradient(135deg,${p.color},${p.color}CC);color:#fff;display:flex;align-items:center;gap:5px">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M12 3l-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3L12 3z"/>
+          </svg>
+          Copiar p/ IA
+        </button>
+        <button id="btn-copy-all-ai" class="btn" style="padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;
+          background:#F1F5F9;border:1px solid #E2E8F0;color:#64748B;display:flex;align-items:center;gap:5px">
+          Todos p/ IA
+        </button>
+        <button id="btn-export" class="btn" style="padding:8px 14px;border-radius:8px;font-size:12px;font-weight:600;
+          background:#F1F5F9;border:1px solid #E2E8F0;color:#64748B;display:flex;align-items:center;gap:5px">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="M7 10l5 5 5-5"/><path d="M12 15V3"/>
+          </svg>
+          JSON
+        </button>
+      </div>
+    </div>
+
+    <!-- Product tabs -->
+    <div style="background:#fff;border-bottom:1px solid var(--border);display:flex;padding:0 16px;overflow-x:auto">
+      ${PRODUCTS.map((pr,i) => {
+        const cnt = getProductNotes(pr.id).length;
+        return `<button class="ptab${i===state.activeProduct?' active':''}" data-pidx="${i}"
+          style="padding:12px 20px;font-size:15px;font-weight:600;white-space:nowrap;background:none;border:none;
+          color:${i===state.activeProduct?pr.color:'#94A3B8'};display:flex;align-items:center;gap:6px;
+          --active-color:${pr.color}">
+          ${pr.emoji} ${pr.name}
+          <span style="background:${i===state.activeProduct?pr.color+'15':'#F1F5F9'};color:${i===state.activeProduct?pr.color:'#94A3B8'};
+            padding:2px 10px;border-radius:10px;font-size:12px;font-weight:700">${cnt}</span>
+        </button>`;
+      }).join("")}
+    </div>
+
+    <!-- Board -->
+    <div style="flex:1;padding:20px;overflow-y:auto">
+      <div style="max-width:1400px;margin:0 auto">
+        <!-- Product header -->
+        <div class="afu" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
+          <div>
+            <h2 class="fd" style="font-size:24px;font-weight:700;color:var(--text)">
+              ${p.emoji} ${p.name}
+            </h2>
+            <p style="font-size:14px;color:var(--text2)">${p.sub}</p>
+          </div>
+          <div style="display:flex;gap:6px">
+            ${CATEGORIES.map(c => {
+              const cnt = notes.filter(n=>n.category===c.id).length;
+              return `<div style="padding:4px 12px;border-radius:12px;font-size:12px;font-weight:600;
+                background:${c.bg};color:${c.color};border:1px solid ${c.color}25">
+                ${c.icon} ${c.label} <b>${cnt}</b>
+              </div>`;
+            }).join("")}
+          </div>
+        </div>
+
+        <!-- Notes grid -->
+        ${notes.length === 0 ? `
+          <div style="text-align:center;padding:80px 20px;background:#fff;border-radius:16px;border:2px dashed #E2E8F0">
+            <p class="caveat" style="font-size:32px;color:#CBD5E1">Aguardando cards dos participantes...</p>
+            <p style="font-size:15px;color:var(--text3);margin-top:6px">Os cards aparecerão aqui automaticamente</p>
+            <div style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;padding:6px 14px;
+              border-radius:20px;background:#F0FDF4;font-size:13px;font-weight:600;color:#16A34A">
+              <div class="live-dot"></div> Sincronização ativa
+            </div>
+          </div>
+        ` : `
+          <div class="fac-grid">
+            ${notes.map((n,i) => renderNote(n, IS_FACILITATOR, i)).join("")}
+          </div>
+        `}
+      </div>
+    </div>
+
+    ${state.showAIPrompt ? renderAIPromptModal() : ''}
+  </div>`;
+}
+
+/* ─── AI Prompt Modal ─── */
+function renderAIPromptModal() {
+  return `
+  <div class="modal-bg" id="ai-modal-bg">
+    <div class="afu" style="background:#fff;border-radius:20px;padding:24px;width:calc(100% - 32px);max-width:640px;
+      box-shadow:0 25px 60px rgba(0,0,0,.2);max-height:85vh;display:flex;flex-direction:column"
+      onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+        <div>
+          <h3 class="fd" style="font-size:18px;font-weight:700;color:var(--text)">Prompt para Análise IA</h3>
+          <p style="font-size:12px;color:var(--text3)">Copie e cole no Claude ou ChatGPT</p>
+        </div>
+        <button id="btn-close-ai" class="btn" style="width:30px;height:30px;border-radius:8px;background:#F1F5F9;
+          display:flex;align-items:center;justify-content:center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round">
+            <path d="M18 6 6 18"/><path d="M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+      <textarea id="ta-ai-prompt" readonly
+        style="flex:1;min-height:250px;width:100%;padding:14px;border-radius:12px;
+        font-size:13px;font-family:monospace;line-height:1.5;
+        background:#F8FAFC;border:1px solid #E2E8F0;color:#334155"
+        onclick="this.select()">${esc(state.aiPromptText)}</textarea>
+      <div style="display:flex;gap:8px;margin-top:12px">
+        <button id="btn-copy-prompt" class="btn" style="flex:1;padding:12px;border-radius:12px;font-size:14px;
+          font-weight:600;background:linear-gradient(135deg,#003B73,#0066CC);color:#fff;
+          display:flex;align-items:center;justify-content:center;gap:6px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/>
+            <path d="M9 2h6a1 1 0 0 1 1 1v2a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1V3a1 1 0 0 1 1-1z"/>
+          </svg>
+          Copiar Tudo
+        </button>
+        <button id="btn-select-prompt" class="btn" style="padding:12px 18px;border-radius:12px;font-size:14px;
+          font-weight:600;background:#F1F5F9;color:#64748B;border:1px solid #E2E8F0">
+          Selecionar Tudo
+        </button>
+      </div>
+      <p style="font-size:11px;color:var(--text3);margin-top:8px;text-align:center">
+        Dica: clique no texto para selecionar tudo, ou use o botão Copiar
+      </p>
+    </div>
+  </div>`;
+}
+
+/* ─── Note Card ─── */
+function renderNote(note, canDelete, idx) {
+  const nc = NOTE_COLORS[note.colorIdx % NOTE_COLORS.length];
+  const cat = CATEGORIES.find(c => c.id === note.category) || CATEGORIES[3];
+  const rotation = ((note.id?.charCodeAt(2) || 0) % 5 - 2) * 0.7;
+  const delay = idx !== undefined ? idx * 0.03 : 0;
+
+  return `
+  <div class="note apop" style="background:${nc.bg};border:1px solid ${nc.border};border-radius:4px;
+    padding:14px 14px 10px;position:relative;box-shadow:2px 3px 10px rgba(0,0,0,.06);
+    transform:rotate(${rotation}deg);min-height:100px;animation-delay:${delay}s">
+    <div style="display:inline-flex;align-items:center;gap:4px;background:${cat.bg};color:${cat.color};
+      padding:2px 8px;border-radius:8px;font-size:10px;font-weight:600;margin-bottom:8px;letter-spacing:.3px">
+      ${cat.icon} ${esc(cat.label)}
+    </div>
+    <p class="caveat" style="font-size:20px;line-height:1.3;color:#1E293B;word-break:break-word;margin-bottom:10px">
+      ${esc(note.text)}
+    </p>
+    <div style="display:flex;align-items:center;justify-content:space-between">
+      <span style="font-size:11px;color:#94A3B8;font-weight:500">
+        ${esc(note.author)} • ${note.team==="marketing"?"MKT":"ENG"}
+      </span>
+      ${canDelete ? `<button class="btn btn-del" data-nid="${note.id}" style="background:none;padding:3px;border-radius:4px;
+        opacity:.3;display:flex" title="Excluir">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#94A3B8" stroke-width="2" stroke-linecap="round">
+          <path d="M3 6h18"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/>
+        </svg>
+      </button>` : ''}
+    </div>
+  </div>`;
+}
+
+/* ─── Add Note Modal ─── */
+function renderAddModal() {
+  const p = getProduct();
+  return `
+  <div class="modal-bg" id="modal-bg">
+    <div class="afu" style="background:#fff;border-radius:20px;padding:24px;width:calc(100% - 32px);max-width:440px;
+      box-shadow:0 25px 60px rgba(0,0,0,.2)" onclick="event.stopPropagation()">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+        <div>
+          <h3 class="fd" style="font-size:18px;font-weight:700;color:var(--text)">Novo Insight</h3>
+          <p style="font-size:12px;color:var(--text3)">${p.emoji} ${p.name}</p>
+        </div>
+        <button id="btn-close-modal" class="btn" style="width:30px;height:30px;border-radius:8px;background:#F1F5F9;
+          display:flex;align-items:center;justify-content:center">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#64748B" stroke-width="2" stroke-linecap="round">
+            <path d="M18 6 6 18"/><path d="M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px">
+        ${CATEGORIES.map(c => `
+          <button class="chip cat-btn" data-cat="${c.id}" style="padding:5px 12px;border-radius:16px;font-size:12px;
+            font-weight:600;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">
+            ${c.icon} ${c.label}
+          </button>
+        `).join("")}
+      </div>
+
+      <textarea id="ta-note" placeholder="Escreva seu insight, observação ou ideia..."
+        style="width:100%;height:100px;padding:12px 14px;border-radius:12px;font-size:17px;
+        font-family:'Caveat',cursive;line-height:1.35;background:#FEF9C3;border:1px solid #FDE047;color:#1E293B"></textarea>
+      <p style="font-size:11px;color:var(--text3);margin-top:4px;margin-bottom:14px">Ctrl+Enter para enviar</p>
+
+      <div style="display:flex;gap:8px">
+        <button id="btn-submit-note" class="btn" disabled style="flex:1;padding:12px;border-radius:12px;font-size:14px;
+          font-weight:600;background:#E2E8F0;color:#94A3B8;display:flex;align-items:center;justify-content:center;gap:6px">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
+            <path d="M22 2 11 13"/><path d="M22 2 15 22 11 13 2 9z"/>
+          </svg>
+          Adicionar Card
+        </button>
+        <button id="btn-submit-close" class="btn" disabled style="padding:12px 16px;border-radius:12px;font-size:14px;
+          font-weight:600;background:#F1F5F9;color:#64748B;border:1px solid #E2E8F0">
+          Enviar e Fechar
+        </button>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════
+   EVENT BINDING
+   ══════════════════════════════════════ */
+
+let selectedTeam = "";
+let selectedCategory = "forte";
+
+function bindWelcomeEvents() {
+  const nameInp = document.getElementById("inp-name");
+  
+  // ── Restore saved state (survives any page reload) ──
+  const savedName = sessionStorage.getItem("wl-name") || "";
+  const savedTeam = sessionStorage.getItem("wl-team") || "";
+  if (savedName && nameInp) nameInp.value = savedName;
+  if (savedTeam) {
+    selectedTeam = savedTeam;
+    document.querySelectorAll(".team-btn").forEach(b => {
+      const active = b.dataset.team === selectedTeam;
+      b.style.borderColor = active ? "#003B73" : "#E2E8F0";
+      b.style.background = active ? "#EFF6FF" : "#fff";
+      b.style.color = active ? "#003B73" : "#94A3B8";
+    });
+  }
+  updateEnterBtn();
+
+  // ── Save on every interaction ──
+  document.querySelectorAll(".team-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      selectedTeam = btn.dataset.team;
+      sessionStorage.setItem("wl-team", selectedTeam);
+      document.querySelectorAll(".team-btn").forEach(b => {
+        const active = b.dataset.team === selectedTeam;
+        b.style.borderColor = active ? "#003B73" : "#E2E8F0";
+        b.style.background = active ? "#EFF6FF" : "#fff";
+        b.style.color = active ? "#003B73" : "#94A3B8";
+      });
+      updateEnterBtn();
+    });
+  });
+  if (nameInp) {
+    nameInp.addEventListener("input", () => {
+      sessionStorage.setItem("wl-name", nameInp.value);
+      updateEnterBtn();
+    });
+    nameInp.addEventListener("keydown", e => { if (e.key === "Enter") doEnter(); });
+  }
+  document.getElementById("btn-enter")?.addEventListener("click", doEnter);
+}
+
+function bindMainEvents() {
+  document.querySelectorAll(".ptab").forEach(tab => {
+    tab.addEventListener("click", () => {
+      state.activeProduct = parseInt(tab.dataset.pidx);
+      resetTimer();
+      render();
+    });
+  });
+  const addBtn = document.getElementById("btn-add");
+  if (addBtn) addBtn.addEventListener("click", () => { state.showModal = true; render(); });
+  const modalBg = document.getElementById("modal-bg");
+  if (modalBg) modalBg.addEventListener("click", () => { state.showModal = false; render(); });
+  const closeModal = document.getElementById("btn-close-modal");
+  if (closeModal) closeModal.addEventListener("click", () => { state.showModal = false; render(); });
+  document.querySelectorAll(".cat-btn").forEach(btn => {
+    btn.addEventListener("click", () => { selectedCategory = btn.dataset.cat; updateCatBtns(); });
+  });
+  updateCatBtns();
+  const ta = document.getElementById("ta-note");
+  if (ta) {
+    ta.addEventListener("input", updateSubmitBtns);
+    ta.addEventListener("keydown", e => { if (e.key === "Enter" && (e.metaKey || e.ctrlKey)) submitNote(false); });
+    setTimeout(() => ta.focus(), 100);
+  }
+  const subBtn = document.getElementById("btn-submit-note");
+  if (subBtn) subBtn.addEventListener("click", () => submitNote(false));
+  const subClose = document.getElementById("btn-submit-close");
+  if (subClose) subClose.addEventListener("click", () => submitNote(true));
+  document.querySelectorAll(".btn-del").forEach(btn => {
+    btn.addEventListener("click", async (e) => { e.stopPropagation(); await apiDelete("/api/notes/" + btn.dataset.nid); refreshData(); });
+  });
+  const timerToggle = document.getElementById("btn-timer-toggle");
+  if (timerToggle) timerToggle.addEventListener("click", () => state.timerRunning ? pauseTimer() : startTimer());
+  const timerReset = document.getElementById("btn-timer-reset");
+  if (timerReset) timerReset.addEventListener("click", resetTimer);
+  const copyAI = document.getElementById("btn-copy-ai");
+  if (copyAI) copyAI.addEventListener("click", () => copyForAI(state.activeProduct));
+  const copyAllAI = document.getElementById("btn-copy-all-ai");
+  if (copyAllAI) copyAllAI.addEventListener("click", copyAllForAI);
+  const exportBtn = document.getElementById("btn-export");
+  if (exportBtn) exportBtn.addEventListener("click", exportJSON);
+  const aiModalBg = document.getElementById("ai-modal-bg");
+  if (aiModalBg) aiModalBg.addEventListener("click", () => { state.showAIPrompt = false; render(); });
+  const closeAI = document.getElementById("btn-close-ai");
+  if (closeAI) closeAI.addEventListener("click", () => { state.showAIPrompt = false; render(); });
+  const copyPrompt = document.getElementById("btn-copy-prompt");
+  if (copyPrompt) copyPrompt.addEventListener("click", () => tryClipboardCopy(state.aiPromptText));
+  const selectPrompt = document.getElementById("btn-select-prompt");
+  if (selectPrompt) selectPrompt.addEventListener("click", () => { const t = document.getElementById("ta-ai-prompt"); if(t){t.focus();t.select();} });
+}
+
+function updateEnterBtn() {
+  const nameVal = document.getElementById("inp-name")?.value?.trim();
+  const btn = document.getElementById("btn-enter");
+  if (!btn) return;
+  const ok = nameVal && selectedTeam;
+  btn.disabled = !ok;
+  btn.style.background = ok ? "linear-gradient(135deg,#003B73,#0066CC)" : "#E2E8F0";
+  btn.style.color = ok ? "#fff" : "#94A3B8";
+}
+
+function updateCatBtns() {
+  document.querySelectorAll(".cat-btn").forEach(btn => {
+    const cat = CATEGORIES.find(c => c.id === btn.dataset.cat);
+    const active = btn.dataset.cat === selectedCategory;
+    btn.style.borderColor = active ? cat.color : "#E2E8F0";
+    btn.style.background = active ? cat.bg : "#fff";
+    btn.style.color = active ? cat.color : "#94A3B8";
+  });
+}
+
+function updateSubmitBtns() {
+  const val = document.getElementById("ta-note")?.value?.trim();
+  const p = getProduct();
+  const sub = document.getElementById("btn-submit-note");
+  const subC = document.getElementById("btn-submit-close");
+  if (sub) {
+    sub.disabled = !val;
+    sub.style.background = val ? p.color : "#E2E8F0";
+    sub.style.color = val ? "#fff" : "#94A3B8";
+  }
+  if (subC) subC.disabled = !val;
+}
+
+async function doEnter() {
+  const nameVal = document.getElementById("inp-name")?.value?.trim();
+  if (!nameVal || !selectedTeam) return;
+  state.name = nameVal;
+  state.team = selectedTeam;
+  // Clear saved form state
+  sessionStorage.removeItem("wl-name");
+  sessionStorage.removeItem("wl-team");
+  await apiPost("/api/participants", { name: state.name, team: state.team });
+  const d = await apiGet("/api/data");
+  if (d) { state.data = d; state.totalCards = Object.values(d.notes||{}).reduce((s,a)=>s+a.length,0); }
+  // Swap screens: hide static login, show dynamic app
+  document.getElementById("welcome").style.display = "none";
+  document.getElementById("app").style.display = "block";
+  render();
+  startPolling();
+}
+
+async function submitNote(andClose) {
+  const ta = document.getElementById("ta-note");
+  const text = ta?.value?.trim();
+  if (!text) return;
+  const p = getProduct();
+
+  await apiPost("/api/notes", {
+    productId: p.id,
+    text: text,
+    category: selectedCategory,
+    author: state.name,
+    team: state.team,
+    colorIdx: Math.floor(Math.random() * NOTE_COLORS.length)
+  });
+
+  ta.value = "";
+  updateSubmitBtns();
+  showToast("✓ Card adicionado");
+  await refreshData();
+
+  if (andClose) {
+    state.showModal = false;
+    render();
+  } else {
+    ta.focus();
+  }
+}
+
+/* ─── Init ─── */
+// Login form is static HTML — zero API calls, zero renders, zero timers.
+// JS only binds click/keydown events. Everything else starts after "Entrar".
+bindWelcomeEvents();
+</script>
+</body>
+</html>

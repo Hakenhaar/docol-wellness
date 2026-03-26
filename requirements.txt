@@ -1,0 +1,2 @@
+# Docol Wellness Server
+# Nenhuma dependência externa — usa apenas a biblioteca padrão do Python

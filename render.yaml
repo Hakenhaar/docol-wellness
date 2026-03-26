@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: docol-wellness
+    runtime: python
+    buildCommand: ""
+    startCommand: python server.py
+    envVars:
+      - key: PORT
+        value: 10000
