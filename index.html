@@ -128,17 +128,25 @@ textarea { resize: none; }
         background:#F8FAFC;border:1px solid #E2E8F0;color:#0F172A;margin-top:6px;margin-bottom:16px"/>
 
       <label style="font-size:12px;font-weight:600;color:#94A3B8;letter-spacing:.5px;text-transform:uppercase">
-        Equipe
+        Área
       </label>
-      <div style="display:flex;gap:10px;margin-top:6px;margin-bottom:20px">
-        <button class="btn team-btn" data-team="marketing" style="flex:1;padding:12px;border-radius:12px;font-size:13px;
-          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">
-          Marketing / Comercial
-        </button>
-        <button class="btn team-btn" data-team="engenharia" style="flex:1;padding:12px;border-radius:12px;font-size:13px;
-          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">
-          Engenharia / P&D
-        </button>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:6px;margin-bottom:20px">
+        <button class="btn team-btn" data-team="marketing" style="padding:10px;border-radius:10px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">Marketing</button>
+        <button class="btn team-btn" data-team="comunicacao" style="padding:10px;border-radius:10px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">Comunicação</button>
+        <button class="btn team-btn" data-team="eng_produto" style="padding:10px;border-radius:10px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">Eng. Produto</button>
+        <button class="btn team-btn" data-team="pd" style="padding:10px;border-radius:10px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">P&amp;D</button>
+        <button class="btn team-btn" data-team="design" style="padding:10px;border-radius:10px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">Design</button>
+        <button class="btn team-btn" data-team="treinamento" style="padding:10px;border-radius:10px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">Treinamento</button>
+        <button class="btn team-btn" data-team="especificacao" style="padding:10px;border-radius:10px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">Especificação</button>
+        <button class="btn team-btn" data-team="showroom" style="padding:10px;border-radius:10px;font-size:13px;
+          font-weight:500;border:2px solid #E2E8F0;background:#fff;color:#94A3B8">Showroom</button>
       </div>
 
       <button id="btn-enter" class="btn" disabled style="width:100%;padding:14px;border-radius:12px;font-size:15px;
@@ -173,7 +181,7 @@ const PRODUCTS = [
     desc:"Banheira de crioterapia com controle de temperatura para recuperação.",
     color:"#0EA5A0", light:"#EEFBFA", emoji:"❄️" },
   { id:"bliss", name:"DocolBliss", sub:"Banheira de Microbolhas",
-    desc:"Banheira com tecnologia de microbolhas para hidromassagem e cuidado com a pele.",
+    desc:"Banheira com tecnologia de microbolhas para limpeza e cuidados profundos com a pele.",
     color:"#4A6CF7", light:"#EEF1FD", emoji:"💧" },
   { id:"nuvia", name:"DocolNuvia", sub:"Ducha de Espuma",
     desc:"Sistema inovador de ducha com geração de espuma para experiência sensorial única.",
@@ -186,6 +194,13 @@ const CATEGORIES = [
   { id:"insight", label:"Insight / Ideia", color:"#2563EB", bg:"#EFF6FF", icon:"💡" },
   { id:"geral", label:"Observação Geral", color:"#6B7280", bg:"#F9FAFB", icon:"●" }
 ];
+
+const TEAMS = {
+  marketing:"Marketing", comunicacao:"Comunicação", eng_produto:"Eng. Produto",
+  pd:"P&D", design:"Design", treinamento:"Treinamento",
+  especificacao:"Especificação", showroom:"Showroom"
+};
+function teamLabel(id) { return TEAMS[id] || id; }
 
 const NOTE_COLORS = [
   { bg:"#FEF9C3", border:"#FDE047" },
@@ -333,7 +348,7 @@ function buildPromptForProduct(productIdx) {
 
   const noteTexts = notes.map((n,i) => {
     const cat = CATEGORIES.find(c=>c.id===n.category);
-    return `[${i+1}] (${cat?.label||"Geral"}) "${n.text}" — ${n.author} (${n.team==="marketing"?"MKT":"ENG"})`;
+    return `[${i+1}] (${cat?.label||"Geral"}) "${n.text}" — ${n.author} (${teamLabel(n.team)})`;
   }).join("\n");
 
   return `Você é um analista sênior de insights de produto da Docol. Analise os post-its coletados na sessão de insights sobre o produto "${p.name}" (${p.sub} — ${p.desc}).
@@ -460,7 +475,7 @@ function renderParticipant() {
       display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:40">
       <div>
         <h1 class="fd" style="font-size:16px;font-weight:700;color:var(--text);line-height:1.2">Wellness Insights</h1>
-        <p style="font-size:11px;color:var(--text3)">${esc(state.name)} • ${state.team==="marketing"?"MKT":"ENG"}</p>
+        <p style="font-size:11px;color:var(--text3)">${esc(state.name)} • ${teamLabel(state.team)}</p>
       </div>
       <div style="display:flex;align-items:center;gap:6px">
         <div class="live-dot"></div>
@@ -742,7 +757,7 @@ function renderNote(note, canDelete, idx) {
     </p>
     <div style="display:flex;align-items:center;justify-content:space-between">
       <span style="font-size:11px;color:#94A3B8;font-weight:500">
-        ${esc(note.author)} • ${note.team==="marketing"?"MKT":"ENG"}
+        ${esc(note.author)} • ${teamLabel(note.team)}
       </span>
       ${canDelete ? `<button class="btn btn-del" data-nid="${note.id}" style="background:none;padding:3px;border-radius:4px;
         opacity:.3;display:flex" title="Excluir">
